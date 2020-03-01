@@ -1,51 +1,63 @@
 import React from "react";
-import pet from "@frontendmasters/pet";
-import { navigate } from "@reach/router";
+import pet, { Photo } from "@frontendmasters/pet";
+import { navigate, RouteComponentProps } from "@reach/router";
 
 import Modal from "./Modal";
 import Carousel from "./Carousel";
 import ErrorBoundary from "./ErrorBoundary";
 import ThemeContext from "./ThemeContext";
 
-class Details extends React.Component {
-  state = { loading: true };
+class Details extends React.Component<RouteComponentProps<{ id: string }>> {
+  public state = {
+    loading: true,
+    showModal: false,
+    name: "",
+    animal: "",
+    location: "",
+    description: "",
+    media: [] as Photo[],
+    breed: "",
+    url: "",
+    hasError: false
+  };
 
-  constructor(props) {
-    super(props);
-    this.state = { loading: true, showModal: false };
+  public componentDidMount() {
+    if (!this.props.id) {
+      navigate("/");
+      return;
+    } else {
+      pet
+        .animal(+this.props.id)
+        .then(({ animal }) => {
+          if (typeof animal === "undefined") {
+            this.setPageError();
+          } else {
+            this.setState({
+              name: animal.name,
+              animal: animal.type,
+              location: `${animal.contact.address.city}, ${animal.contact.address.state}`,
+              description: animal.description,
+              media: animal.photos,
+              breed: animal.breeds.primary,
+              url: animal.url,
+              loading: false
+            });
+          }
+        })
+        .catch(() => this.setPageError());
+    }
   }
 
-  componentDidMount() {
-    pet
-      .animal(this.props.id)
-      .then(({ animal }) => {
-        if (typeof animal == "undefined") {
-          this.setPageError();
-        } else {
-          this.setState({
-            name: animal.name,
-            animal: animal.type,
-            location: `${animal.contact.address.city}, ${animal.contact.address.state}`,
-            description: animal.description,
-            media: animal.photos,
-            breed: animal.breeds.primary,
-            url: animal.url,
-            loading: false
-          });
-        }
-      })
-      .catch(() => this.setPageError());
-  }
+  public toggleModal = () =>
+    this.setState({ showModal: !this.state.showModal });
 
-  toggleModal = () => this.setState({ showModal: !this.state.showModal });
+  public adopt = () => navigate(this.state.url);
 
-  adopt = () => navigate(this.state.url);
-
-  setPageError() {
+  public setPageError() {
     this.setState({ hasError: true, loading: false });
   }
 
-  render() {
+  public render() {
     if (this.state.loading) {
       return <h1>Loading..</h1>;
     }
@@ -98,7 +110,9 @@ class Details extends React.Component {
   }
 }
 
-export default function DetailsErrorBoundary(props) {
+export default function DetailsErrorBoundary(
+  props: RouteComponentProps<{ id: string }>
+) {
   return (
     <ErrorBoundary>
       <Details {...props} />

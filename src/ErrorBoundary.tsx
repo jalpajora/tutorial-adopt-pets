@@ -1,17 +1,17 @@
-import React from "react";
+import React, { ErrorInfo } from "react";
 import { Link, Redirect } from "@reach/router";
 
 class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
+  public state = {
+    redirect: "",
+    hasError: false
+  };
 
-  static getDerivedStateFromError() {
+  public static getDerivedStateFromError() {
     return { hasError: true };
   }
 
-  componentDidCatch(error, errorInfo) {
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("ErrorBoundary caught an error", error, errorInfo);
   }
 
