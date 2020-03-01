@@ -4,10 +4,11 @@
   "description": "React, including hooks, effects, context, and portals. Tutorial from Frontendmasters: Complete react v5 by Brian Holt",
   "main": "index.js",
   "scripts": {
-    "dev": "parcel src/index.html",
+    "dev": "npm run typecheck && parcel src/index.html",
     "dev:mock": "cross-env PET_MOCK=mock npm run dev",
     "format": "prettier \"src/**/*.{js,jsx}\" --write",
-    "lint": "tslint --project ."
+    "lint": "tslint --project .",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
