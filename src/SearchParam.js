@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import pet, { ANIMALS } from "@frontendmasters/pet";
 
 import useDropdown from "./useDropdown";
 import Results from "./Results";
-import ThemeContext from "./ThemeContext";
+import { connect } from "react-redux";
+import changeLocation from "./actionCreators/changeLocation";
+import changeTheme from "./actionCreators/changeTheme";
 
-export default function SearchParams() {
-  const [location, setLocation] = useState("Seattle, WA");
+const SearchParams = ({ theme, location, setTheme, updateLocation }) => {
   const [breeds, setBreeds] = useState([]);
   const [animal, AnimalDropdown] = useDropdown("Animal", "dog", ANIMALS);
   const [breed, BreedDropdown, setBreed] = useDropdown("Breeds", "", breeds);
   const [pets, setPets] = useState([]);
-  const [theme, setTheme] = useContext(ThemeContext);
 
   async function requestPets() {
     const { animals } = await pet.animals({
@@ -47,7 +47,7 @@ export default function SearchParams() {
             id="location"
             value={location}
             placeholder="Location"
-            onChange={e => setLocation(e.target.value)}
+            onChange={e => updateLocation(e.target.value)}
           />
         </label>
         <AnimalDropdown />
@@ -70,4 +70,20 @@ export default function SearchParams() {
       <Results pets={pets} />
     </div>
   );
-}
+};
+
+const mapStateToProps = ({ theme, location }) => ({
+  theme,
+  location
+});
+
+const mapDispatchToProps = dispatch => ({
+  updateLocation(location) {
+    dispatch(changeLocation(location));
+  },
+  setTheme(theme) {
+    dispatch(changeTheme(theme));
+  }
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SearchParams);
